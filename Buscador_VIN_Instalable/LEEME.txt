@@ -1,0 +1,14 @@
+BUSCADOR AUTOSUR OBJETIVOS
+
+Ejecutar Instalar Buscador VIN.cmd en Windows.
+La app original se conserva. Se copian sus bases de consulta en la primera instalación.
+Si no existe instalación original, se necesitan vehiculos.dat y clientes.dat del usuario.
+
+Objetivos: cargar un reporte XLSX acumulado desde el 27, elegir el período por mes de cierre y confirmar Reporte hasta. Cada carga reemplaza el acumulado de ese período.
+Objetivos y parámetros: cargar pesos, distribución % Taller/Mostrador y margen; activar o excluir Interno, Garantía y Cortesía.
+Calendario nacional: incluye 2026 y consulta los años faltantes automáticamente; permite verificar o corregir fechas.
+
+Historial y objetivos se conservan en LOCALAPPDATA/Buscador Autosur Objetivos/datos.
+No publicar bases de clientes, vehículos ni reportes de ventas en GitHub.
+
+Consultar README.md para reglas completas.

@@ -1,0 +1,20 @@
+# Bases internas: nunca deben publicarse en GitHub
+*.dat
+*.db
+*.xlsx
+*.xls
+*.csv
+
+# Paquetes locales e instalaciones generadas
+*.zip
+*.exe
+bin/
+obj/
+.vs/
+
+
+# Datos comerciales y builds locales
+objetivos.xml*
+Tests.exe
+*.exe
+*.mdb
