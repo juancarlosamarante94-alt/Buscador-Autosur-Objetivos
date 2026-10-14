@@ -34,6 +34,6 @@ Proyección = venta acumulada / días laborables transcurridos × días laborabl
 
 ## Publicación
 
-Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. Este proyecto debe publicarse en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo el repositorio nuevo.
+Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. El código está en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo el repositorio nuevo. Mientras el repositorio sea privado, el botón abre la página de versiones en el navegador para descargar con la sesión del usuario; la consulta anónima no puede descargar releases privadas. No se guardan credenciales de GitHub en la aplicación.
 
 El workflow de Windows compila y ejecuta las pruebas antes de generar el paquete. Se ejecuta manualmente; publicar una release requiere seleccionar `publicar=true`. No incluye datos de ventas, clientes ni vehículos.

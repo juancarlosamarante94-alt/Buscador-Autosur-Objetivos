@@ -12,4 +12,4 @@ Base: tag v1.2.8 del repositorio original, commit 10643a08b71e14f9640ec83b4708e4
 
 Pendiente de validación en Windows: ejecución real del instalador PowerShell, disposición visual WinForms, impresión y exportación del turnero. El entorno Linux permitió compilar y ejecutar el motor de cálculos, pero no abrir un servidor gráfico. El workflow de Windows agrega la validación de compilación y pruebas en el repositorio nuevo.
 
-El repositorio remoto nuevo todavía debe crearse. No se publicó una release ni se modificó el repositorio original.
+El código se publicó mediante el complemento GitHub en el repositorio privado Buscador-Autosur-Objetivos. No se publicó una release ni se modificó el repositorio original.
