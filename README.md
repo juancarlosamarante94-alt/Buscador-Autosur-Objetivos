@@ -34,6 +34,14 @@ Proyección = venta acumulada / días laborables transcurridos × días laborabl
 
 ## Publicación
 
-Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. El código está en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo el repositorio nuevo. Mientras el repositorio sea privado, el botón abre la página de versiones en el navegador para descargar con la sesión del usuario; la consulta anónima no puede descargar releases privadas. No se guardan credenciales de GitHub en la aplicación.
+Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. El código está en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo el repositorio nuevo. Los repositorios privados usan el acceso de lectura cifrado configurado dentro de la app.
 
-El workflow de Windows compila y ejecuta las pruebas antes de generar el paquete. Se ejecuta manualmente; publicar una release requiere seleccionar `publicar=true`. No incluye datos de ventas, clientes ni vehículos.
+El workflow de Windows compila y ejecuta las pruebas antes de generar el paquete. Publica la release al actualizar main después de pasar las pruebas. No incluye datos de ventas, clientes ni vehículos.
+
+## Actualizar desde la aplicación
+
+El botón **Buscar actualizaciones** consulta la última release del repositorio propio, compara versiones, descarga el paquete, verifica su integridad si GitHub publica el digest, valida que corresponda a la app, cierra la instancia y ejecuta el instalador. Se conservan los datos y objetivos. Cada aplicación usa su propio repositorio, paquete y carpeta de datos.
+
+Los repositorios son privados. En **Acceso GitHub** se configura una sola vez un token con permiso **Contents: Read-only** limitado al repositorio de esta app. El token se cifra con DPAPI para el usuario de Windows, fuera de la carpeta de instalación; nunca se publica. La app funciona sin token para consultas y reportes; solo las actualizaciones privadas lo requieren. Si el token vence o se revoca, se vuelve a configurar. No se guardan credenciales en código ni en releases.
+
+El workflow de Windows valida cálculos, interfaz y almacenamiento cifrado; publica la release de la versión indicada en Actualizaciones.cs después de completar las pruebas. Las actualizaciones no modifican datos de otra app.

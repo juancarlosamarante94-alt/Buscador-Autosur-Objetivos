@@ -29,19 +29,26 @@ jobs:
           if ((git hash-object "$root/lib/UglyToad.PdfPig.Fonts.dll") -ne '2e1b9817fdef5820a9c5e59d09ee8ec0cc2c079d') { throw 'Fonts DLL inválida' }
           if ((git hash-object "$root/lib/UglyToad.PdfPig.dll") -ne '3c6a850a2bab06cc534ea7ba168b59b895243254') { throw 'PdfPig DLL inválida' }
           $compiler = "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe"
-          $refs = @('System.dll','System.Core.dll','System.Drawing.dll','System.Windows.Forms.dll','System.Xml.dll','System.Xml.Linq.dll','System.IO.Compression.dll','System.IO.Compression.FileSystem.dll','System.Web.Extensions.dll') + @(Get-ChildItem "$root/lib/*.dll" | ForEach-Object FullName)
+          $refs = @('System.dll','System.Core.dll','System.Drawing.dll','System.Windows.Forms.dll','System.Xml.dll','System.Xml.Linq.dll','System.IO.Compression.dll','System.IO.Compression.FileSystem.dll','System.Web.Extensions.dll','System.Security.dll') + @(Get-ChildItem "$root/lib/*.dll" | ForEach-Object FullName)
           $argsRef = $refs | ForEach-Object { '/reference:' + $_ }
-          & $compiler /nologo /target:winexe "/out:$root\Buscador Autosur Objetivos.exe" @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs"
+          & $compiler /nologo /target:winexe "/out:$root\Buscador Autosur Objetivos.exe" @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs"
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar aplicación' }
           & $compiler /nologo /out:Tests.exe /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Xml.Linq.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "$root\ObjetivosCore.cs" (Join-Path $PWD 'tests\CoreTests.cs')
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas' }
           ./Tests.exe
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas' }
-          & $compiler /nologo /main:UiSmoke /out:UiSmoke.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" (Join-Path $PWD 'tests\UiSmoke.cs')
+          & $compiler /nologo /main:UiSmoke /out:UiSmoke.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" (Join-Path $PWD 'tests\UiSmoke.cs')
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar prueba visual' }
           Get-ChildItem "$root/lib/*.dll" | Copy-Item -Destination .
           ./UiSmoke.exe
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
+          & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
+          if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
+          ./UpdateTests.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de actualización' }
+          $version = [regex]::Match((Get-Content -Raw "$root\Actualizaciones.cs"), 'AppVersion="([0-9.]+)"').Groups[1].Value
+          if (!$version) { throw 'Falta versión' }
+          "VERSION=$version" >> $env:GITHUB_ENV
       - name: Crear paquete
         shell: pwsh
         run: |
@@ -54,9 +61,9 @@ jobs:
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
       - uses: softprops/action-gh-release@v2
-        if: github.event_name == 'workflow_dispatch' && inputs.publicar
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
         with:
-          tag_name: v1.3.0
-          name: Buscador Autosur Objetivos v1.3.0
+          tag_name: v${{ env.VERSION }}
+          name: Buscador Autosur Objetivos v${{ env.VERSION }}
           files: Buscador_Autosur_Objetivos_Actualizacion.zip
           generate_release_notes: true
