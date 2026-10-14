@@ -10,6 +10,6 @@ Base: tag v1.2.8 del repositorio original, commit 10643a08b71e14f9640ec83b4708e4
 - Sin cambios en Turnero.cs: conservación del conversor Renault.
 - Fuentes de datos comerciales, clientes y vehículos ausentes del repositorio y paquete.
 
-Pendiente de validación en Windows: ejecución real del instalador PowerShell, disposición visual WinForms, impresión y exportación del turnero. El entorno Linux permitió compilar y ejecutar el motor de cálculos, pero no abrir un servidor gráfico. El workflow de Windows agrega la validación de compilación y pruebas en el repositorio nuevo.
+Validado en Windows Server mediante GitHub Actions: compilación .NET Framework, 17 pruebas del motor y apertura/renderizado del dashboard con una comprobación de avance al 120 %. La captura usa datos ficticios. Pendiente: ejecución del instalador en el equipo del usuario, impresión y exportación del turnero.
 
 El código se publicó mediante el complemento GitHub en el repositorio privado Buscador-Autosur-Objetivos. No se publicó una release ni se modificó el repositorio original.
