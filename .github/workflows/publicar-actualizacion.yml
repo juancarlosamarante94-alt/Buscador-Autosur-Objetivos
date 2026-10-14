@@ -23,7 +23,7 @@ jobs:
         run: |
           $root = Join-Path $PWD 'Buscador_VIN_Instalable'
           foreach ($name in @('UglyToad.PdfPig.Fonts.dll','UglyToad.PdfPig.dll')) {
-            $out = [IO.File]::Create((Join-Path $PWD "$root/lib/$name"))
+            $out = [IO.File]::Create((Join-Path $root "lib/$name"))
             try { Get-ChildItem "binary-parts/$name.*" | Sort-Object Name | ForEach-Object { $bytes = [IO.File]::ReadAllBytes($_.FullName); $out.Write($bytes,0,$bytes.Length) } } finally { $out.Dispose() }
           }
           if ((git hash-object "$root/lib/UglyToad.PdfPig.Fonts.dll") -ne '2e1b9817fdef5820a9c5e59d09ee8ec0cc2c079d') { throw 'Fonts DLL inválida' }
