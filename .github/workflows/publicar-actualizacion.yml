@@ -101,12 +101,12 @@ jobs:
             turnero-impresion.png
             turnero-vista-previa.png
           body: |
-            Autosur Objetivos 1.3.7: recuperación de lectura del turnero.
-            - Agrega lectura compatible por posición de Renault cuando el lector por horarios omite turnos.
-            - No depende de que la hora quede alineada con el borde del encabezado.
-            - Recupera los límites amplios de cliente y servicio; conserva el filtrado de Nissan.
-            - Mantiene la vista previa cerrable, la navegación, el alto de impresión y las actualizaciones públicas.
-            Pruebas en Windows con PDF sintético que reproduce cero filas en el lector 1.3.6.
-            El PDF original del usuario no se incluye ni se ejecuta en este repositorio público.
+            App repuestos 1.3.8: excluye la columna Acción del servicio del turnero.
+            - Ajusta el límite de Acción cuando su encabezado está centrado respecto de los botones.
+            - Excluye toda la columna, incluido texto no reconocido debajo de los controles.
+            - Aplica la exclusión en el lector por horarios y en el lector compatible por vehículo.
+            - Conserva los importes, las notas del servicio, la navegación y la vista previa.
+            Probado en Windows con PDF sintético, dos escalas y encabezados desalineados.
+            Pendiente la comprobación final con el PDF privado del usuario.
             Paquete sin DAT. Conserva bases locales, historial y objetivos.
           generate_release_notes: true
