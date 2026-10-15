@@ -22,7 +22,7 @@ La aplicación nueva se instala en `%LOCALAPPDATA%/Buscador Autosur Objetivos/ap
 - Objetivo en pesos por período, distribución Taller en % y Mostrador como complemento a 100 %, margen único editable.
 - Avance no se limita a 100 %; se muestra importe faltante o superado, por sector y total.
 
-## Pantalla de Objetivos · versión 1.3.3
+## Pantalla de Objetivos · versión 1.3.4
 
 La pestaña Objetivos usa la cabecera Autosur en gris oscuro y amarillo, con cuatro tarjetas para venta, utilidad, margen y avance. Las tarjetas respetan la selección de fechas y sector; el avance y la proyección usan el corte acumulado guardado. Las barras comparan el acumulado de Total, Taller y Mostrador con sus objetivos, incluso por encima del 100 %. La marca vertical indica el objetivo y el color representa la venta.
 
@@ -39,6 +39,12 @@ Guardar `Reporte hasta` con la fecha hasta la que se descargó el acumulado, aun
 Calendario nacional: se incluye 2026 y se consultan automáticamente años faltantes en ArgentinaDatos. Se puede revisar o corregir contra https://www.argentina.gob.ar/feriados y guardar fechas nacionales por año. El calendario 2026 fue consultado el 14/10/2026, e incluye el feriado nacional extraordinario del 09/11/2026. Se excluyen sábados, domingos y las fechas registradas. No se excluyen automáticamente días no laborables opcionales ni feriados provinciales. Si falta el calendario de algún año necesario se conserva la venta real, pero no se inventa una proyección.
 
 Proyección = venta acumulada / días laborables transcurridos × días laborables del período. Necesario diario = faltante / días laborables restantes. Comparación parcial: igual cantidad de días laborables disponibles en ambos períodos. El período anterior se etiqueta incompleto si no tiene corte al día 26. La cifra previa no se presenta como cierre completo en ese caso.
+
+## Turnero Renault · navegación e impresión
+
+El turnero usa una grilla con barras nativas horizontal y vertical. Se puede recorrer con rueda del mouse, flechas y Re Pág / Av Pág. Fecha y hora permanecen fijas al desplazarse hacia las columnas de Chasis, Motor o Servicio. Los controles superiores y la grilla ocupan filas separadas, también al reducir la ventana.
+
+**Alto de turno (mm)** permite ajustar la altura mínima de cada turno impreso entre 28 y 60 mm. El valor inicial es 32 mm, frente a unos 21 mm anteriores. Si el servicio necesita más espacio, la fila crece para alojar su texto. El mismo ajuste se aplica a Vista previa, Imprimir turnero y Exportar PDF. Se mantiene A4 vertical y la fecha del primer turno en el título; los turnos continúan automáticamente en las páginas siguientes.
 
 ## Publicación
 
