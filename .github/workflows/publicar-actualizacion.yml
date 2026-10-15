@@ -53,6 +53,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
           $preview = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-verificado.png'))
           for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
+          & $compiler /nologo /main:TurneroTests /out:TurneroTests.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" tests\TurneroTests.cs
+          if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas del turnero' }
+          ./TurneroTests.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron navegación e impresión del turnero' }
+          foreach ($imageFile in @('turnero-pantalla.png','turnero-impresion.png')) {
+            $turnPreview = [Convert]::ToBase64String([IO.File]::ReadAllBytes($imageFile))
+            Write-Output ('TURNERO_IMAGE:' + $imageFile)
+            for ($i=0; $i -lt $turnPreview.Length; $i+=4000) { Write-Output ('TURNERO_BASE64:' + $turnPreview.Substring($i,[Math]::Min(4000,$turnPreview.Length-$i))) }
+          }
           & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
           ./UpdateTests.exe --public-live
@@ -76,8 +85,10 @@ jobs:
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
             dashboard-compacto.png
+            turnero-pantalla.png
+            turnero-impresion.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
@@ -85,12 +96,14 @@ jobs:
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
             dashboard-compacto.png
+            turnero-pantalla.png
+            turnero-impresion.png
           body: |
-            Autosur Objetivos 1.3.3: actualizaciones públicas sin cuenta ni token.
-            - Solo Buscar actualizaciones: consulta y descarga desde el repositorio público.
-            - Eliminado Acceso GitHub; las credenciales antiguas ya no se leen.
-            - Símbolos centrados en las tarjetas, títulos y botones mejor alineados.
-            - Auditoría de repositorio, historial y paquetes publicados sin DAT.
-            - Conserva bases existentes, historial, objetivos y cálculos comerciales.
-            Validado en Windows; las capturas usan datos de demostración.
+            Autosur Objetivos 1.3.4: navegación del turnero e impresión con filas más altas.
+            - Grilla con desplazamiento nativo horizontal, vertical y teclado.
+            - Fecha y hora permanecen visibles al desplazarse hacia Servicio.
+            - Alto impreso de 32 mm por turno, ajustable entre 28 y 60 mm.
+            - Impresión y exportación en A4 vertical con paginación automática.
+            - Conserva las actualizaciones sin acceso GitHub y las bases locales.
+            Las capturas usan turnos ficticios. Paquetes públicos sin DAT.
           generate_release_notes: true
