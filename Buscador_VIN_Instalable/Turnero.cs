@@ -86,7 +86,7 @@ public class TurneroPage:UserControl {
    // Original reader started at 185 and discarded customer/phone prefixes.
    double vehicle=Math.Max(300,brand.X-2);
    foreach(var word in words){
-    if(word.X>=155&&word.X<vehicle)row.Client.Add(word);
+    if(word.X>=155&&word.X<vehicle&&LabelKey(word.Text)!="CLIENTE")row.Client.Add(word);
     else if(word.X>=vehicle&&word.X<395)row.Vehicle.Add(word);
     else if(word.X>=395&&word.X<actionLimits[brand]&&word.Y>=brand.Y-8)row.Service.Add(word);
    }
