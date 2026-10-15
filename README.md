@@ -22,7 +22,7 @@ La aplicación nueva se instala en `%LOCALAPPDATA%/Buscador Autosur Objetivos/ap
 - Objetivo en pesos por período, distribución Taller en % y Mostrador como complemento a 100 %, margen único editable.
 - Avance no se limita a 100 %; se muestra importe faltante o superado, por sector y total.
 
-## Pantalla de Objetivos · versión 1.3.4
+## Pantalla de Objetivos · versión 1.3.6
 
 La pestaña Objetivos usa la cabecera Autosur en gris oscuro y amarillo, con cuatro tarjetas para venta, utilidad, margen y avance. Las tarjetas respetan la selección de fechas y sector; el avance y la proyección usan el corte acumulado guardado. Las barras comparan el acumulado de Total, Taller y Mostrador con sus objetivos, incluso por encima del 100 %. La marca vertical indica el objetivo y el color representa la venta.
 
@@ -40,7 +40,13 @@ Calendario nacional: se incluye 2026 y se consultan automáticamente años falta
 
 Proyección = venta acumulada / días laborables transcurridos × días laborables del período. Necesario diario = faltante / días laborables restantes. Comparación parcial: igual cantidad de días laborables disponibles en ambos períodos. El período anterior se etiqueta incompleto si no tiene corte al día 26. La cifra previa no se presenta como cierre completo en ese caso.
 
-## Turnero Renault · navegación e impresión
+## Turnero Renault · lectura, vista previa e impresión
+
+Desde la versión 1.3.6 el lector detecta las columnas Turno, Asesor, Cliente, Vehículo, Servicios y Acción por sus encabezados. Las filas se delimitan por los horarios, se reconocen continuaciones entre páginas y los límites se recalculan si cambia la escala del PDF. Se conservan nombres completos, teléfonos, modelo, patente, VIN, precios y notas; el CUIT de una empresa no se toma como teléfono. Nissan y horarios vacíos se excluyen. El código de motor sigue procediendo de la base local de vehículos.
+
+La vista previa se abre en una ventana independiente: **Cerrar vista previa**, la cruz de la ventana o **Esc** permiten volver a la aplicación. Incluye Anterior, Siguiente, zoom y desplazamiento. La aplicación principal permanece habilitada. Las pruebas incluyen apertura, navegación, cierre, reapertura y paginación con avance garantizado.
+
+### Navegación e impresión
 
 El turnero usa una grilla con barras nativas horizontal y vertical. Se puede recorrer con rueda del mouse, flechas y Re Pág / Av Pág. Fecha y hora permanecen fijas al desplazarse hacia las columnas de Chasis, Motor o Servicio. Los controles superiores y la grilla ocupan filas separadas, también al reducir la ventana.
 
