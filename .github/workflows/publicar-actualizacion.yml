@@ -57,7 +57,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas del turnero' }
           ./TurneroTests.exe
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron navegación e impresión del turnero' }
-          foreach ($imageFile in @('turnero-pantalla.png','turnero-impresion.png')) {
+          foreach ($imageFile in @('turnero-pantalla.png','turnero-impresion.png','turnero-vista-previa.png')) {
             $turnPreview = [Convert]::ToBase64String([IO.File]::ReadAllBytes($imageFile))
             Write-Output ('TURNERO_IMAGE:' + $imageFile)
             for ($i=0; $i -lt $turnPreview.Length; $i+=4000) { Write-Output ('TURNERO_BASE64:' + $turnPreview.Substring($i,[Math]::Min(4000,$turnPreview.Length-$i))) }
@@ -87,8 +87,9 @@ jobs:
             dashboard-compacto.png
             turnero-pantalla.png
             turnero-impresion.png
+            turnero-vista-previa.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
@@ -98,13 +99,13 @@ jobs:
             dashboard-compacto.png
             turnero-pantalla.png
             turnero-impresion.png
+            turnero-vista-previa.png
           body: |
-            Autosur Objetivos 1.3.5: corrección del actualizador.
-            - Corrige el error al convertir ArrayList a Object[] al leer los archivos de GitHub.
-            - Admite ambos formatos y selecciona el ZIP de Autosur entre los archivos publicados.
-            - Probado con respuestas JSON reales y descarga pública sin credenciales.
-            Conserva las mejoras del turnero de 1.3.4, las bases locales, el historial y los objetivos.
-            Si tu versión muestra el error de conversión, descargá el ZIP de esta release,
-            descomprimilo y ejecutá Instalar Buscador VIN.cmd una sola vez.
-            Las próximas actualizaciones se hacen desde Buscar actualizaciones. No incluye DAT.
+            Autosur Objetivos 1.3.6: vista previa del turnero que permite cerrar y volver a la app.
+            - Ventana independiente con Cerrar vista previa y tecla Esc.
+            - Navegación por páginas, zoom y desplazamiento sin deshabilitar la aplicación.
+            - Paginación con avance garantizado para evitar generación infinita de páginas.
+            - Conserva A4 vertical, altura de turno ajustable y actualización sin credenciales.
+            Probado en Windows con turnos ficticios; no cambia todavía la extracción del PDF.
+            Paquete sin DAT. Conserva bases locales, historial y objetivos.
           generate_release_notes: true
