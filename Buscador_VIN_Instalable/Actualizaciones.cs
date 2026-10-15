@@ -1,7 +1,7 @@
 namespace AutosurBuscador {
 using System;using System.Collections.Generic;using System.Diagnostics;using System.Drawing;using System.Globalization;using System.IO;using System.IO.Compression;using System.Linq;using System.Net;using System.Security.Cryptography;using System.Text;using System.Threading.Tasks;using System.Web.Script.Serialization;using System.Windows.Forms;
 public static class UpdateManager {
- public const string AppVersion="1.3.1";
+ public const string AppVersion="1.3.2";
  public const string Repository="juancarlosamarante94-alt/Buscador-Autosur-Objetivos";
  public const string PackageName="Buscador_Autosur_Objetivos_Actualizacion.zip";
  public const string PackageFolder="Buscador_VIN_Instalable";

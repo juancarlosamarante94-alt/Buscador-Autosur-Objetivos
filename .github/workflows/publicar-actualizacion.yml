@@ -42,6 +42,8 @@ jobs:
           Get-ChildItem "$root/lib/*.dll" | Copy-Item -Destination .
           ./UiSmoke.exe
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
+          $preview = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-verificado.png'))
+          for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
           & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
           ./UpdateTests.exe
@@ -60,8 +62,9 @@ jobs:
           path: |
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
+            dashboard-compacto.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
