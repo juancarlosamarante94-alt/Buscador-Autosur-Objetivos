@@ -18,6 +18,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Auditar repositorio sin bases DAT
+        shell: pwsh
+        run: |
+          $tracked = @(git ls-files | Where-Object { $_ -match '(?i)\.dat$' })
+          $historical = @(git rev-list --objects --all | Where-Object { $_ -match '(?i)\.dat$' })
+          if ($tracked.Count -gt 0 -or $historical.Count -gt 0) { throw 'Se detectaron DAT en el repositorio o su historial' }
+          Write-Output 'OK repositorio e historial sin archivos DAT'
       - name: Reconstruir dependencias y compilar
         shell: pwsh
         run: |
@@ -46,7 +55,7 @@ jobs:
           for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
           & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
-          ./UpdateTests.exe
+          ./UpdateTests.exe --public-live
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de actualización' }
           $version = [regex]::Match((Get-Content -Raw "$root\Actualizaciones.cs"), 'AppVersion="([0-9.]+)"').Groups[1].Value
           if (!$version) { throw 'Falta versión' }
@@ -54,8 +63,12 @@ jobs:
       - name: Crear paquete
         shell: pwsh
         run: |
-          if ((Test-Path Buscador_VIN_Instalable/clientes.dat) -or (Test-Path Buscador_VIN_Instalable/vehiculos.dat)) { throw 'No publicar bases internas' }
+          if (@(Get-ChildItem Buscador_VIN_Instalable -Recurse -File -Filter '*.dat').Count -gt 0) { throw 'No publicar bases DAT' }
           Compress-Archive Buscador_VIN_Instalable Buscador_Autosur_Objetivos_Actualizacion.zip
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $package = [IO.Compression.ZipFile]::OpenRead((Join-Path $PWD 'Buscador_Autosur_Objetivos_Actualizacion.zip'))
+          try { if (@($package.Entries | Where-Object { $_.FullName -match '(?i)\.dat$' }).Count -gt 0) { throw 'El paquete contiene DAT' } } finally { $package.Dispose() }
+          Write-Output 'OK paquete final sin DAT'
       - uses: actions/upload-artifact@v4
         with:
           name: Buscador-Autosur-Objetivos
@@ -64,7 +77,7 @@ jobs:
             dashboard-verificado.png
             dashboard-compacto.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
@@ -73,11 +86,11 @@ jobs:
             dashboard-verificado.png
             dashboard-compacto.png
           body: |
-            Autosur Objetivos 1.3.2: nuevo diseño de la pestaña Objetivos de Repuestos.
-            - Cabecera Autosur, cuatro tarjetas de indicadores y gráficos de facturación y objetivos.
-            - Avance y objetivos superados para Taller, Mostrador y total.
-            - Más filtros: fechas, fecha de corte y calendario; desglose de Interno, Garantía y Cortesía.
-            - Conserva el historial, los objetivos y las bases existentes al actualizar.
-            Validado en Windows con pruebas de cálculos, interfaz y actualizaciones.
-            Las capturas muestran datos de demostración.
+            Autosur Objetivos 1.3.3: actualizaciones públicas sin cuenta ni token.
+            - Solo Buscar actualizaciones: consulta y descarga desde el repositorio público.
+            - Eliminado Acceso GitHub; las credenciales antiguas ya no se leen.
+            - Símbolos centrados en las tarjetas, títulos y botones mejor alineados.
+            - Auditoría de repositorio, historial y paquetes publicados sin DAT.
+            - Conserva bases existentes, historial, objetivos y cálculos comerciales.
+            Validado en Windows; las capturas usan datos de demostración.
           generate_release_notes: true

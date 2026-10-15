@@ -5,8 +5,15 @@ class UiSmoke {
  static void Refresh(ObjetivosPage page){page.GetType().GetMethod("ResetDates",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(page,null);Application.DoEvents();}
  static void CaptureCanvas(Form f,string name){var root=f.Controls[0];using(var host=new Panel{Size=new Size(1440,1080),BackColor=DashboardTheme.Bg}){f.Controls.Remove(root);host.Controls.Add(root);host.CreateControl();host.PerformLayout();Application.DoEvents();using(var bmp=new Bitmap(host.Width,host.Height)){host.DrawToBitmap(bmp,new Rectangle(0,0,bmp.Width,bmp.Height));bmp.Save(name);}host.Controls.Remove(root);f.Controls.Add(root);f.PerformLayout();}}
  static void Capture(Form f,string name){Application.DoEvents();using(var bmp=new Bitmap(f.Width,f.Height)){f.DrawToBitmap(bmp,new Rectangle(0,0,bmp.Width,bmp.Height));bmp.Save(name);}}
+ static void CenteredIcons(){
+ foreach(string badge in new[]{"$","%"})using(var card=new MetricCard{Size=new Size(320,116),Dock=DockStyle.None,Title="",Value="",Caption="",Badge=badge})using(var bmp=new Bitmap(320,116)){
+ card.DrawToBitmap(bmp,new Rectangle(0,0,bmp.Width,bmp.Height));Rectangle circle=Rectangle.Empty,ink=Rectangle.Empty;
+ for(int y=0;y<bmp.Height;y++)for(int x=0;x<bmp.Width;x++){Color c=bmp.GetPixel(x,y);if(c.R>245&&c.G>235&&c.G<252&&c.B>190&&c.B<220)circle=circle.IsEmpty?new Rectangle(x,y,1,1):Rectangle.Union(circle,new Rectangle(x,y,1,1));if(c.R<210&&c.G<180&&c.B<100)ink=ink.IsEmpty?new Rectangle(x,y,1,1):Rectangle.Union(ink,new Rectangle(x,y,1,1));}
+ if(circle.IsEmpty||ink.IsEmpty||Math.Abs((circle.Left+circle.Right-ink.Left-ink.Right)/2.0)>2.5||Math.Abs((circle.Top+circle.Bottom-ink.Top-ink.Bottom)/2.0)>2.5)throw new Exception("Icono descentrado: "+badge+" círculo "+circle+" símbolo "+ink);
+ Console.WriteLine("OK símbolo "+badge+" centrado en su círculo");
+ }}
  [STAThread]static void Main(){
- Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
+ Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);CenteredIcons();
  var store=new SalesStore(System.IO.Path.Combine(System.IO.Path.GetTempPath(),"AutosurUi_"+Guid.NewGuid().ToString("N")));var p=new DateTime(2026,10,1);var days=new List<DateTime>();
  for(var d=SalesMath.Start(p);d<=new DateTime(2026,10,14);d=d.AddDays(1))if(d.DayOfWeek!=DayOfWeek.Saturday&&d.DayOfWeek!=DayOfWeek.Sunday&&d!=new DateTime(2026,10,12))days.Add(d);
  var lines=new List<SaleLine>();decimal tw=days.Select((d,i)=>(decimal)(i%4+2)).Sum(),tLeft=28000000,mLeft=44000000;int number=1;
@@ -20,9 +27,11 @@ class UiSmoke {
  main.MaximumSize=new Size(1920,1400);main.Size=new Size(1440,1080);
  var all=Walk(main).ToArray();var page=all.OfType<ObjetivosPage>().Single();Set(page,"store",store);((DateTimePicker)Get(page,"period")).Value=p;Refresh(page);
  var tabs=all.OfType<TabControl>().First();tabs.SelectedTab=all.OfType<TabPage>().Single(x=>x.Text=="Objetivos");main.Show();Application.DoEvents();
- if(!all.OfType<Button>().Any(x=>x.Text=="Buscar actualizaciones")||!all.OfType<Button>().Any(x=>x.Text=="Acceso GitHub"))throw new Exception("Faltan botones de actualización");
+ if(all.OfType<Button>().Count(x=>x.Text=="Buscar actualizaciones")!=1||all.OfType<Button>().Any(x=>x.Text=="Acceso GitHub"))throw new Exception("Debe haber solo Buscar actualizaciones, sin acceso GitHub");
  if(((MetricCard)Get(page,"saleCard")).Value!=72000000m.ToString("C0",System.Globalization.CultureInfo.GetCultureInfo("es-AR")))throw new Exception("Venta visual incorrecta");
  if(!((Label)Get(page,"projection")).Text.Contains("120,00 %"))throw new Exception("Falta sobreperformance total");
+ var more=all.OfType<Button>().Single(x=>x.Text=="Más filtros");more.PerformClick();Application.DoEvents();if(!((Panel)Get(page,"advanced")).Visible)throw new Exception("No abren los filtros");more.PerformClick();
+ var breakdown=all.OfType<Button>().Single(x=>x.Text.StartsWith("Ver desglose"));breakdown.PerformClick();Application.DoEvents();if(!((DashboardCard)Get(page,"breakdownCard")).Visible)throw new Exception("No abre el desglose");breakdown.PerformClick();
  CaptureCanvas(main,"dashboard-verificado.png");
  var sectors=(ComboBox)Get(page,"sector");foreach(int index in new[]{1,2}){sectors.SelectedIndex=index;Application.DoEvents();var card=(MetricCard)Get(page,"advanceCard");decimal value=Decimal.Parse(card.Value.Replace("%","").Trim(),System.Globalization.CultureInfo.GetCultureInfo("es-AR"));if(value<=100)throw new Exception("Falta sobreperformance de "+sectors.Text);}
  sectors.SelectedIndex=0;
