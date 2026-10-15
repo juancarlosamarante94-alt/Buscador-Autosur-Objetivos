@@ -99,11 +99,12 @@ jobs:
             turnero-pantalla.png
             turnero-impresion.png
           body: |
-            Autosur Objetivos 1.3.4: navegación del turnero e impresión con filas más altas.
-            - Grilla con desplazamiento nativo horizontal, vertical y teclado.
-            - Fecha y hora permanecen visibles al desplazarse hacia Servicio.
-            - Alto impreso de 32 mm por turno, ajustable entre 28 y 60 mm.
-            - Impresión y exportación en A4 vertical con paginación automática.
-            - Conserva las actualizaciones sin acceso GitHub y las bases locales.
-            Las capturas usan turnos ficticios. Paquetes públicos sin DAT.
+            Autosur Objetivos 1.3.5: corrección del actualizador.
+            - Corrige el error al convertir ArrayList a Object[] al leer los archivos de GitHub.
+            - Admite ambos formatos y selecciona el ZIP de Autosur entre los archivos publicados.
+            - Probado con respuestas JSON reales y descarga pública sin credenciales.
+            Conserva las mejoras del turnero de 1.3.4, las bases locales, el historial y los objetivos.
+            Si tu versión muestra el error de conversión, descargá el ZIP de esta release,
+            descomprimilo y ejecutá Instalar Buscador VIN.cmd una sola vez.
+            Las próximas actualizaciones se hacen desde Buscar actualizaciones. No incluye DAT.
           generate_release_notes: true
