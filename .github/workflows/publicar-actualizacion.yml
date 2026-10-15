@@ -44,6 +44,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
           $preview = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-verificado.png'))
           for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
+          $compact = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-compacto.png'))
+          for ($i=0; $i -lt $compact.Length; $i+=4000) { Write-Output ('UI_COMPACT_BASE64:' + $compact.Substring($i,[Math]::Min(4000,$compact.Length-$i))) }
           & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
           ./UpdateTests.exe

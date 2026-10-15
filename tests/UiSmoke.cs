@@ -16,6 +16,7 @@ class UiSmoke {
  store.Set(new Snapshot{Period=p.AddMonths(-1),Cutoff=SalesMath.End(p.AddMonths(-1)),Loaded=DateTime.UtcNow,Lines=new List<SaleLine>{new SaleLine{Date=new DateTime(2026,9,14),Type="FACTURA DE VENTA",Code="F",Number="prev",Sector="Taller",Sale=50000000,Profit=10000000}}});
  store.CalendarYears.Add(2026);store.Holidays.Add(new DateTime(2026,10,12));
  using(var main=new MainForm()){
+ main.MaximumSize=new Size(1920,1400);main.Size=new Size(1440,1080);
  var all=Walk(main).ToArray();var page=all.OfType<ObjetivosPage>().Single();Set(page,"store",store);((DateTimePicker)Get(page,"period")).Value=p;Refresh(page);
  var tabs=all.OfType<TabControl>().First();tabs.SelectedTab=all.OfType<TabPage>().Single(x=>x.Text=="Objetivos");main.Show();Application.DoEvents();
  if(!all.OfType<Button>().Any(x=>x.Text=="Buscar actualizaciones")||!all.OfType<Button>().Any(x=>x.Text=="Acceso GitHub"))throw new Exception("Faltan botones de actualización");
