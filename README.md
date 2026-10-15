@@ -65,3 +65,10 @@ El botón **Buscar actualizaciones** consulta la última release del repositorio
 Desde la versión 1.3.3 solo aparece **Buscar actualizaciones**. La app consulta y descarga de forma anónima; no solicita ni envía credenciales de GitHub. El acceso antiguo guardado se retira cuando es posible y nunca se vuelve a leer. Las bases DAT existentes se conservan en la instalación local y no se incluyen en las actualizaciones públicas.
 
 El workflow de Windows valida cálculos, interfaz, centrado de símbolos y descarga pública sin credenciales; audita el historial del repositorio y todos los paquetes publicados para impedir DAT;  publica la release de la versión indicada en Actualizaciones.cs después de completar las pruebas. Las actualizaciones no modifican datos de otra app.
+
+
+### Recuperación del lector en 1.3.7
+
+El lector por horarios puede omitir filas cuando el texto de la hora cae fuera del borde izquierdo detectado del encabezado. Se agrega un lector compatible basado en los anclajes Renault/Nissan que usaba la versión anterior, con límites más amplios para cliente y servicios. Se elige el resultado con más turnos, sin concatenar ni duplicar ambas lecturas. Se conserva el lector por horarios para continuaciones largas entre páginas cuando detecta todos los turnos. La compatibilidad utiliza la distribución de columnas de la agenda original; otros diseños pueden requerir ajustes.
+
+La prueba de regresión desplaza las horas hacia la izquierda, verifica que el lector 1.3.6 devuelve cero y que el lector compatible recupera los siete turnos sintéticos con nombres, teléfonos, patentes, chasis e importes. El PDF privado del usuario no se publica ni se ejecuta en Actions. La comprobación final sobre ese archivo sigue pendiente.

@@ -48,6 +48,19 @@ static class TurneroPdfFixture {
  string path=System.IO.Path.Combine(System.IO.Path.GetTempPath(),"TurneroSynthetic_"+Guid.NewGuid().ToString("N")+".pdf");try{System.IO.File.WriteAllText(path,Document(new[]{p1.ToString(),p2.ToString()},new[]{1d,1.2d}),System.Text.Encoding.ASCII);var rows=(List<Appointment>)page.GetType().GetMethod("Extract",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(page,new object[]{path});
  if(rows.Count!=7)throw new Exception("No detecta los siete turnos Renault del PDF sintético: "+rows.Count);string[] expected={"ALFA APELLIDO","BETA DOS SEGUNDO APELLIDO","Gamma Apellido","DELTA APELLIDO","EMPRESA ONDA COLOR S.R.L. 30-12345678-9","EPSILON APELLIDO","ZETA APELLIDO OTRO APELLIDO"};for(int i=0;i<rows.Count;i++){var row=rows[i];if(row.Cliente!=expected[i])throw new Exception("Nombre recortado: "+row.Cliente+" esperado "+expected[i]);if(row.Telefono!="11111111"+(i+1).ToString("00"))throw new Exception("Teléfono perdido o CUIT confundido: "+row.Telefono);if(row.Fecha!="16/10/26"||row.Patente!="AA"+(i+1).ToString("000")+"AA"||row.Chasis!=new String('A',15)+(i+1).ToString("00"))throw new Exception("Fecha, patente o VIN incompleto");if(!row.Servicio.Contains("$35.000")||!row.Servicio.Contains("INFORME DE CALCULADORES."))throw new Exception("Servicio recortado: "+row.Servicio);if(row.Servicio.Contains("Avisar")||row.Servicio.Contains("Cancelar")||row.Servicio.Contains("capacidad"))throw new Exception("Acciones mezcladas con servicio");}
  if(!rows[0].Servicio.Contains("DEBE ENTREGARSE AL MEDIODIA"))throw new Exception("Corta servicios a altura fija");if(!rows[3].Servicio.Contains("CONTINUA SERVICIO EN OTRA PAGINA"))throw new Exception("Pierde continuación entre páginas");Console.WriteLine("OK lectura real de PDF: siete Renault; excluye dos Nissan y un horario vacío");Console.WriteLine("OK nombres completos, teléfonos separados de CUIT, modelos, patente, VIN, precios y notas");Console.WriteLine("OK columnas desde encabezados, cambio de escala y continuación entre páginas sin recorte fijo");
+ // Reproduce clocks outside the heading-derived column: 1.3.6 returned zero.
+ var shifted1=p1.ToString().Replace("1 0 0 1 20 742 Tm (08:15)","1 0 0 1 5 742 Tm (08:15)");
+ // Move all clock positions while leaving headings intact.
+ shifted1=System.Text.RegularExpressions.Regex.Replace(shifted1,@"1 0 0 1 20 ([0-9.]+) Tm \((\d{2}:\d{2})\)","1 0 0 1 5 $1 Tm ($2)");
+ string shifted2=System.Text.RegularExpressions.Regex.Replace(p2.ToString(),@"1 0 0 1 24 ([0-9.]+) Tm \((\d{2}:\d{2})\)","1 0 0 1 6 $1 Tm ($2)");
+ System.IO.File.WriteAllText(path,Document(new[]{shifted1,shifted2},new[]{1d,1.2d}),System.Text.Encoding.ASCII);
+ var adaptive=(List<Appointment>)page.GetType().GetMethod("ExtractAdaptive",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(page,new object[]{path});
+ if(adaptive.Count!=0)throw new Exception("La prueba no reproduce la regresión de encabezado/reloj");
+ rows=(List<Appointment>)page.GetType().GetMethod("Extract",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(page,new object[]{path});
+ if(rows.Count!=7)throw new Exception("El lector compatible no recupera los siete turnos: "+rows.Count);
+ for(int i=0;i<rows.Count;i++){if(rows[i].Cliente!=expected[i]||rows[i].Telefono!="11111111"+(i+1).ToString("00")||rows[i].Patente!="AA"+(i+1).ToString("000")+"AA"||rows[i].Chasis!=new String('A',15)+(i+1).ToString("00"))throw new Exception("El lector compatible perdió datos en turno "+i);if(!rows[i].Servicio.Contains("$35.000")||rows[i].Servicio.Contains("Avisar"))throw new Exception("Límites de servicios incorrectos en compatibilidad");}
+ Console.WriteLine("OK regresión 1.3.6 reproducida: lector por reloj devuelve cero; recuperación por vehículo devuelve siete sin Nissan ni duplicados");
+
  }finally{System.IO.File.Delete(path);}
  }
 }
