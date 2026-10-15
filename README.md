@@ -22,7 +22,7 @@ La aplicación nueva se instala en `%LOCALAPPDATA%/Buscador Autosur Objetivos/ap
 - Objetivo en pesos por período, distribución Taller en % y Mostrador como complemento a 100 %, margen único editable.
 - Avance no se limita a 100 %; se muestra importe faltante o superado, por sector y total.
 
-## Pantalla de Objetivos · versión 1.3.2
+## Pantalla de Objetivos · versión 1.3.3
 
 La pestaña Objetivos usa la cabecera Autosur en gris oscuro y amarillo, con cuatro tarjetas para venta, utilidad, margen y avance. Las tarjetas respetan la selección de fechas y sector; el avance y la proyección usan el corte acumulado guardado. Las barras comparan el acumulado de Total, Taller y Mostrador con sus objetivos, incluso por encima del 100 %. La marca vertical indica el objetivo y el color representa la venta.
 
@@ -42,14 +42,14 @@ Proyección = venta acumulada / días laborables transcurridos × días laborabl
 
 ## Publicación
 
-Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. El código está en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo el repositorio nuevo. Los repositorios privados usan el acceso de lectura cifrado configurado dentro de la app.
+Destino previsto: `juancarlosamarante94-alt/Buscador-Autosur-Objetivos`. El código está en ese repositorio independiente; nunca en `Buscador-Autosur`. Las actualizaciones consultan solo este repositorio público. No requieren cuenta, token ni configuración de acceso.
 
-El workflow de Windows compila y ejecuta las pruebas antes de generar el paquete. Publica la release al actualizar main después de pasar las pruebas. No incluye datos de ventas, clientes ni vehículos.
+El workflow de Windows comprueba que ni el repositorio ni su historial tengan archivos DAT, valida los paquetes de las releases y revisa de nuevo el ZIP generado. Compila y ejecuta las pruebas antes de publicar. Publica la release al actualizar main después de pasar las pruebas. No incluye datos de ventas, clientes ni vehículos.
 
 ## Actualizar desde la aplicación
 
 El botón **Buscar actualizaciones** consulta la última release del repositorio propio, compara versiones, descarga el paquete, verifica su integridad si GitHub publica el digest, valida que corresponda a la app, cierra la instancia y ejecuta el instalador. Se conservan los datos y objetivos. Cada aplicación usa su propio repositorio, paquete y carpeta de datos.
 
-Los repositorios son privados. En **Acceso GitHub** se configura una sola vez un token con permiso **Contents: Read-only** limitado al repositorio de esta app. El token se cifra con DPAPI para el usuario de Windows, fuera de la carpeta de instalación; nunca se publica. La app funciona sin token para consultas y reportes; solo las actualizaciones privadas lo requieren. Si el token vence o se revoca, se vuelve a configurar. No se guardan credenciales en código ni en releases.
+Desde la versión 1.3.3 solo aparece **Buscar actualizaciones**. La app consulta y descarga de forma anónima; no solicita ni envía credenciales de GitHub. El acceso antiguo guardado se retira cuando es posible y nunca se vuelve a leer. Las bases DAT existentes se conservan en la instalación local y no se incluyen en las actualizaciones públicas.
 
-El workflow de Windows valida cálculos, interfaz y almacenamiento cifrado; publica la release de la versión indicada en Actualizaciones.cs después de completar las pruebas. Las actualizaciones no modifican datos de otra app.
+El workflow de Windows valida cálculos, interfaz, centrado de símbolos y descarga pública sin credenciales; audita el historial del repositorio y todos los paquetes publicados para impedir DAT;  publica la release de la versión indicada en Actualizaciones.cs después de completar las pruebas. Las actualizaciones no modifican datos de otra app.

@@ -1,5 +1,6 @@
 # Bases internas: nunca deben publicarse en GitHub
 *.dat
+*.[dD][aA][tT]
 *.db
 *.xlsx
 *.xls

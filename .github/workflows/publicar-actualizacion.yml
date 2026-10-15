@@ -77,7 +77,7 @@ jobs:
             dashboard-verificado.png
             dashboard-compacto.png
       - uses: softprops/action-gh-release@v2
-        if: github.event_name == 'workflow_dispatch' && inputs.publicar
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
