@@ -63,7 +63,7 @@ public class ObjetivosPage:UserControl {
  var selection=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false,Margin=new Padding(0)};filters.Controls.Add(selection,0,0);
  period.Format=DateTimePickerFormat.Custom;period.CustomFormat="MMMM yyyy";period.ShowUpDown=true;period.Width=155;period.Margin=new Padding(0,3,12,0);
  selection.Controls.Add(Caption("Período"));selection.Controls.Add(period);
- sector.DropDownStyle=ComboBoxStyle.DropDownList;sector.Items.AddRange(new object[]{"Todos","Taller","Mostrador"});sector.SelectedIndex=0;sector.Width=125;sector.Margin=new Padding(0,3,10,0);selection.Controls.Add(sector);
+ sector.DropDownStyle=ComboBoxStyle.DropDownList;sector.Items.AddRange(new object[]{"Todos","Taller","Mostrador"});sector.DrawMode=DrawMode.OwnerDrawFixed;sector.ItemHeight=23;sector.DrawItem+=delegate(object sender,DrawItemEventArgs e){if(e.Index<0)return;e.DrawBackground();var r=e.Bounds;r.X+=6;r.Width-=6;TextRenderer.DrawText(e.Graphics,Convert.ToString(sector.Items[e.Index]),sector.Font,r,(e.State&DrawItemState.Selected)!=0?SystemColors.HighlightText:DashboardTheme.Ink,TextFormatFlags.Left|TextFormatFlags.VerticalCenter);e.DrawFocusRectangle();};sector.SelectedIndex=0;sector.Width=125;sector.Margin=new Padding(0,3,10,0);selection.Controls.Add(sector);
  rangeCaption.AutoSize=true;rangeCaption.ForeColor=DashboardTheme.Muted;rangeCaption.Font=new Font("Segoe UI",8.5f);rangeCaption.Margin=new Padding(0,8,0,0);selection.Controls.Add(rangeCaption);
  var actions=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false,FlowDirection=FlowDirection.RightToLeft,Margin=new Padding(0)};filters.Controls.Add(actions,1,0);
  var upload=Button("Cargar reporte",Import);DashboardTheme.Button(upload,true);upload.Margin=new Padding(8,0,0,0);

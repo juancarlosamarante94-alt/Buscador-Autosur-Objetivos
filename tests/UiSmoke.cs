@@ -14,7 +14,7 @@ class UiSmoke {
  lines.Add(new SaleLine{Date=days[i],Type=type,Code="F",Number=(number++).ToString(),Sector="Taller",Sale=t,Profit=t*.30m});
  string key=(number++).ToString();lines.Add(new SaleLine{Date=days[i],Type="FACTURA DE VENTA",Code="F",Number=key,Sector="Mostrador",Sale=m*.6m,Profit=m*.12m});lines.Add(new SaleLine{Date=days[i],Type="FACTURA DE VENTA",Code="F",Number=key,Sector="Mostrador",Sale=m*.4m,Profit=m*.08m});}
  store.Set(new Snapshot{Period=p,Cutoff=new DateTime(2026,10,14),Loaded=DateTime.UtcNow,Source="Reporte de demostración.xlsx",Lines=lines});store.GetGoal(p).Total=60000000;store.GetGoal(p).Margin=24;
- store.Set(new Snapshot{Period=p.AddMonths(-1),Cutoff=SalesMath.End(p.AddMonths(-1)),Loaded=DateTime.UtcNow,Lines=new List<SaleLine>{new SaleLine{Date=new DateTime(2026,9,14),Type="FACTURA DE VENTA",Code="F",Number="prev",Sector="Taller",Sale=50000000,Profit=10000000}}});
+ store.Set(new Snapshot{Period=p.AddMonths(-1),Cutoff=SalesMath.End(p.AddMonths(-1)),Loaded=DateTime.UtcNow,Lines=new List<SaleLine>{new SaleLine{Date=new DateTime(2026,9,1),Type="FACTURA DE VENTA",Code="F",Number="prev",Sector="Taller",Sale=50000000,Profit=10000000}}});
  store.CalendarYears.Add(2026);store.Holidays.Add(new DateTime(2026,10,12));
  using(var main=new MainForm()){
  main.MaximumSize=new Size(1920,1400);main.Size=new Size(1440,1080);

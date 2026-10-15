@@ -44,8 +44,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
           $preview = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-verificado.png'))
           for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
-          $compact = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-compacto.png'))
-          for ($i=0; $i -lt $compact.Length; $i+=4000) { Write-Output ('UI_COMPACT_BASE64:' + $compact.Substring($i,[Math]::Min(4000,$compact.Length-$i))) }
           & $compiler /nologo /main:UpdateTests /out:UpdateTests.exe @argsRef "$root\Actualizaciones.cs" tests\UpdateTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
           ./UpdateTests.exe
@@ -66,9 +64,20 @@ jobs:
             dashboard-verificado.png
             dashboard-compacto.png
       - uses: softprops/action-gh-release@v2
-        if: github.event_name == 'workflow_dispatch' && inputs.publicar
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
-          files: Buscador_Autosur_Objetivos_Actualizacion.zip
+          files: |
+            Buscador_Autosur_Objetivos_Actualizacion.zip
+            dashboard-verificado.png
+            dashboard-compacto.png
+          body: |
+            Autosur Objetivos 1.3.2: nuevo diseño de la pestaña Objetivos de Repuestos.
+            - Cabecera Autosur, cuatro tarjetas de indicadores y gráficos de facturación y objetivos.
+            - Avance y objetivos superados para Taller, Mostrador y total.
+            - Más filtros: fechas, fecha de corte y calendario; desglose de Interno, Garantía y Cortesía.
+            - Conserva el historial, los objetivos y las bases existentes al actualizar.
+            Validado en Windows con pruebas de cálculos, interfaz y actualizaciones.
+            Las capturas muestran datos de demostración.
           generate_release_notes: true

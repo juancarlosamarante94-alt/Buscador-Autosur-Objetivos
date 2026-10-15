@@ -22,6 +22,14 @@ La aplicación nueva se instala en `%LOCALAPPDATA%/Buscador Autosur Objetivos/ap
 - Objetivo en pesos por período, distribución Taller en % y Mostrador como complemento a 100 %, margen único editable.
 - Avance no se limita a 100 %; se muestra importe faltante o superado, por sector y total.
 
+## Pantalla de Objetivos · versión 1.3.2
+
+La pestaña Objetivos usa la cabecera Autosur en gris oscuro y amarillo, con cuatro tarjetas para venta, utilidad, margen y avance. Las tarjetas respetan la selección de fechas y sector; el avance y la proyección usan el corte acumulado guardado. Las barras comparan el acumulado de Total, Taller y Mostrador con sus objetivos, incluso por encima del 100 %. La marca vertical indica el objetivo y el color representa la venta.
+
+**Cargar reporte** importa el acumulado. **Editar objetivos** permite cambiar el objetivo en pesos, la distribución y el margen, además de incluir o excluir categorías. **Más filtros** muestra Desde, Hasta, Reporte hasta, Guardar corte y Calendario nacional. **Ver desglose de Interno, Garantía y Cortesía** abre la tabla con venta, utilidad y comprobantes por categoría. En ventanas pequeñas se puede desplazar la pantalla.
+
+La interfaz se valida con datos sintéticos, incluyendo objetivos superados en ambas bocas y total. Las capturas de la release son de demostración. El botón Buscar actualizaciones sigue disponible en la cabecera.
+
 ## Filtros, calendario y comparación
 
 Indicadores, tickets, desglose y facturación diaria respetan fechas y sector. Las barras de objetivos siempre muestran el período acumulado completo en las tres bocas, y se identifican como tales. La proyección respeta el sector seleccionado.
