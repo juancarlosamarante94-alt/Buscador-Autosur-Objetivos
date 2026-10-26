@@ -40,20 +40,20 @@ jobs:
           $compiler = "$env:WINDIR/Microsoft.NET/Framework64/v4.0.30319/csc.exe"
           $refs = @('System.dll','System.Core.dll','System.Drawing.dll','System.Windows.Forms.dll','System.Xml.dll','System.Xml.Linq.dll','System.IO.Compression.dll','System.IO.Compression.FileSystem.dll','System.Web.Extensions.dll','System.Security.dll') + @(Get-ChildItem "$root/lib/*.dll" | ForEach-Object FullName)
           $argsRef = $refs | ForEach-Object { '/reference:' + $_ }
-          & $compiler /nologo /target:winexe "/out:$root\Buscador Autosur Objetivos.exe" @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs"
+          & $compiler /nologo /target:winexe "/out:$root\Buscador Autosur Objetivos.exe" @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" "$root\GeneralCore.cs" "$root\GeneralPage.cs"
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar aplicación' }
           & $compiler /nologo /out:Tests.exe /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Xml.Linq.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "$root\ObjetivosCore.cs" (Join-Path $PWD 'tests\CoreTests.cs')
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas' }
           ./Tests.exe
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas' }
-          & $compiler /nologo /main:UiSmoke /out:UiSmoke.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" (Join-Path $PWD 'tests\UiSmoke.cs')
+          & $compiler /nologo /main:UiSmoke /out:UiSmoke.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" "$root\GeneralCore.cs" "$root\GeneralPage.cs" (Join-Path $PWD 'tests\UiSmoke.cs')
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar prueba visual' }
           Get-ChildItem "$root/lib/*.dll" | Copy-Item -Destination .
           ./UiSmoke.exe
           if ($LASTEXITCODE -ne 0) { throw 'Error al abrir dashboard WinForms' }
           $preview = [Convert]::ToBase64String([IO.File]::ReadAllBytes('dashboard-verificado.png'))
           for ($i=0; $i -lt $preview.Length; $i+=4000) { Write-Output ('UI_PREVIEW_BASE64:' + $preview.Substring($i,[Math]::Min(4000,$preview.Length-$i))) }
-          & $compiler /nologo /main:TurneroTests /out:TurneroTests.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" tests\TurneroTests.cs
+          & $compiler /nologo /main:TurneroTests /out:TurneroTests.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" "$root\GeneralCore.cs" "$root\GeneralPage.cs" tests\TurneroTests.cs
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas del turnero' }
           ./TurneroTests.exe
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron navegación e impresión del turnero' }
@@ -66,6 +66,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Error al compilar pruebas de actualización' }
           ./UpdateTests.exe --public-live
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de actualización' }
+          & $compiler /nologo /main:GeneralTests /out:GeneralTests.exe @argsRef "$root\BuscadorVIN.cs" "$root\Turnero.cs" "$root\ObjetivosCore.cs" "$root\Objetivos.cs" "$root\Actualizaciones.cs" "$root\GeneralCore.cs" "$root\GeneralPage.cs" tests\GeneralTests.cs
+          if ($LASTEXITCODE -ne 0) { throw 'Error al compilar Objetivo general' }
+          ./GeneralTests.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de Objetivo general' }
+          foreach ($imageFile in @('objetivo-general-pantalla.png','objetivo-general-panel.png')) {
+            Write-Output ('GENERAL_IMAGE:' + $imageFile)
+            $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($imageFile))
+            for ($i=0; $i -lt $encoded.Length; $i+=4000) { Write-Output ('GENERAL_BASE64:' + $encoded.Substring($i,[Math]::Min(4000,$encoded.Length-$i))) }
+          }
           $version = [regex]::Match((Get-Content -Raw "$root\Actualizaciones.cs"), 'AppVersion="([0-9.]+)"').Groups[1].Value
           if (!$version) { throw 'Falta versión' }
           "VERSION=$version" >> $env:GITHUB_ENV
@@ -84,29 +93,34 @@ jobs:
           path: |
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
+            objetivo-general-pantalla.png
+            objetivo-general-panel.png
             dashboard-compacto.png
             turnero-pantalla.png
             turnero-impresion.png
             turnero-vista-previa.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
           files: |
             Buscador_Autosur_Objetivos_Actualizacion.zip
             dashboard-verificado.png
+            objetivo-general-pantalla.png
+            objetivo-general-panel.png
             dashboard-compacto.png
             turnero-pantalla.png
             turnero-impresion.png
             turnero-vista-previa.png
           body: |
-            App repuestos 1.3.8: excluye la columna Acción del servicio del turnero.
-            - Ajusta el límite de Acción cuando su encabezado está centrado respecto de los botones.
-            - Excluye toda la columna, incluido texto no reconocido debajo de los controles.
-            - Aplica la exclusión en el lector por horarios y en el lector compatible por vehículo.
-            - Conserva los importes, las notas del servicio, la navegación y la vista previa.
-            Probado en Windows con PDF sintético, dos escalas y encabezados desalineados.
-            Pendiente la comprobación final con el PDF privado del usuario.
-            Paquete sin DAT. Conserva bases locales, historial y objetivos.
+            App repuestos 1.3.9: nuevo Objetivo general por sucursal.
+            - Filtros de sucursales con tildes para seleccionar varias a la vez.
+            - Objetivos mensuales por sucursal, margen objetivo único e historial general separado.
+            - Totales calculados con las funciones existentes, sin modificar ObjetivosCore.cs.
+            - Panel de avances para copiar como imagen o guardar como PNG.
+            - Cierres del 27 al 26, importación repetida sin duplicados y sobreperformance sin tope.
+            - Se conservan la pestaña Objetivos y sus cargas y parámetros.
+            Validado en Windows con datos sintéticos. No incluye reportes comerciales ni DAT.
           generate_release_notes: true
+

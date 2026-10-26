@@ -1,7 +1,7 @@
 namespace AutosurBuscador {
 using System;using System.Collections.Generic;using System.Diagnostics;using System.Globalization;using System.IO;using System.IO.Compression;using System.Linq;using System.Net;using System.Security.Cryptography;using System.Text;using System.Threading.Tasks;using System.Web.Script.Serialization;using System.Windows.Forms;
 public static class UpdateManager {
- public const string AppVersion="1.3.8";
+ public const string AppVersion="1.3.9";
  public const string Repository="juancarlosamarante94-alt/Buscador-Autosur-Objetivos";
  public const string PackageName="Buscador_Autosur_Objetivos_Actualizacion.zip";
  public const string PackageFolder="Buscador_VIN_Instalable";
@@ -27,3 +27,4 @@ public static class UpdateManager {
  }catch(WebException){MessageBox.Show(owner,"No se pudo consultar o descargar la actualización. Revisá Internet e intentá nuevamente más tarde.","Actualizaciones",MessageBoxButtons.OK,MessageBoxIcon.Warning);}catch(Exception ex){MessageBox.Show(owner,ex.Message,"Actualizaciones",MessageBoxButtons.OK,MessageBoxIcon.Error);}finally{if(!button.IsDisposed){button.Enabled=true;button.Text="Buscar actualizaciones";}}}
 }
 }
+

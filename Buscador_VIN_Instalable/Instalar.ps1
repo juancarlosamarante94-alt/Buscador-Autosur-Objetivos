@@ -73,7 +73,9 @@ try {
                   (Get-Content -Raw -Encoding UTF8 (Join-Path $source "Turnero.cs")) + "`r`n" +
                   (Get-Content -Raw -Encoding UTF8 (Join-Path $source "ObjetivosCore.cs")) + "`r`n" +
                   (Get-Content -Raw -Encoding UTF8 (Join-Path $source "Objetivos.cs")) + "`r`n" +
-                  (Get-Content -Raw -Encoding UTF8 (Join-Path $source "Actualizaciones.cs"))
+                  (Get-Content -Raw -Encoding UTF8 (Join-Path $source "Actualizaciones.cs")) + "`r`n" +
+                  (Get-Content -Raw -Encoding UTF8 (Join-Path $source "GeneralCore.cs")) + "`r`n" +
+                  (Get-Content -Raw -Encoding UTF8 (Join-Path $source "GeneralPage.cs"))
     $stageExe = Join-Path $stage "Buscador Autosur Objetivos.exe"
     $references = @("System.Windows.Forms", "System.Drawing", "System.Core", "System.Xml", "System.Xml.Linq", "System.IO.Compression", "System.IO.Compression.FileSystem", "System.Web.Extensions", "System.Security") +
                   @(Get-ChildItem (Join-Path $stage "*.dll") | ForEach-Object { $_.FullName })
@@ -119,3 +121,4 @@ catch {
         "Error de instalacion") | Out-Null
     exit 1
 }
+
