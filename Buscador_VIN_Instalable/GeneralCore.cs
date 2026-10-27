@@ -17,18 +17,18 @@ public class GeneralSettings {
  public void Save(){var xml=new XElement("General",new XAttribute("version",1),Names.OrderBy(x=>x.Key).Select(x=>new XElement("Branch",new XAttribute("key",x.Key),new XAttribute("name",x.Value))),targets.OrderBy(x=>x.Key).Select(x=>new XElement("Target",new XAttribute("key",x.Key),new XAttribute("value",x.Value.ToString(CultureInfo.InvariantCulture)))),margins.OrderBy(x=>x.Key).Select(x=>new XElement("Margin",new XAttribute("key",x.Key),new XAttribute("value",x.Value.ToString(CultureInfo.InvariantCulture)))));string tmp=path+".tmp";new XDocument(xml).Save(tmp);if(File.Exists(path))File.Replace(tmp,path,path+".bak");else File.Move(tmp,path);}
 }
 public class GeneralResult {
- public string Name,Key;public Metrics Values;public decimal Target,MarginGoal;
+ public string Name,Key;public Metrics Values;public decimal Target,MarginGoal;public bool HasTarget;
  public decimal UtilityTarget{get{return Target*MarginGoal/100;}}
  public decimal Difference{get{return Target-Values.Sale;}}
  public decimal UtilityDifference{get{return UtilityTarget-Values.Profit;}}
- public decimal? Advance{get{return Target==0?(decimal?)null:Values.Sale/Target*100;}}
+ public decimal? Advance{get{return !HasTarget||Target==0?(decimal?)null:Values.Sale/Target*100;}}
 }
 public static class GeneralMath {
  public static string BranchKey(SaleLine line){return line.Dealer+"|"+line.Branch;}
  public static List<GeneralBranch> Branches(GeneralSettings settings,IEnumerable<SaleLine> lines){var keys=settings.Names.Keys.Concat(lines.Select(BranchKey)).Distinct().OrderBy(x=>x).ToList();return keys.Select(k=>{var p=k.Split('|');string name;return new GeneralBranch{Key=k,Dealer=p[0],Code=p.Length>1?p[1]:k,Name=settings.Names.TryGetValue(k,out name)?name:"Sucursal "+(p.Length>1?p[1]:k)};}).ToList();}
- public static GeneralResult Result(string name,string key,IEnumerable<SaleLine> lines,decimal target,decimal margin){return new GeneralResult{Name=name,Key=key,Values=SalesMath.Sum(lines),Target=target,MarginGoal=margin};}
+ public static GeneralResult Result(string name,string key,IEnumerable<SaleLine> lines,decimal target,decimal margin){return new GeneralResult{Name=name,Key=key,Values=SalesMath.Sum(lines),Target=target,MarginGoal=margin,HasTarget=target>0};}
  public static List<GeneralResult> Rows(IEnumerable<SaleLine> source,IEnumerable<GeneralBranch> selected,GeneralSettings settings,DateTime period,decimal margin,bool intern,bool warranty,bool courtesy){var lines=source.Where(x=>SalesMath.Period(x.Date)==period&&SalesMath.Included(x,intern,warranty,courtesy)).ToList();return selected.Select(b=>Result(b.Name,b.Key,lines.Where(x=>BranchKey(x)==b.Key),settings.Target(period,b.Key),margin)).ToList();}
- public static GeneralResult Total(IEnumerable<GeneralResult> rows,IEnumerable<SaleLine> source,IEnumerable<string> selected,DateTime period,decimal margin,bool intern,bool warranty,bool courtesy){var keys=new HashSet<string>(selected);var lines=source.Where(x=>SalesMath.Period(x.Date)==period&&keys.Contains(BranchKey(x))&&SalesMath.Included(x,intern,warranty,courtesy));return Result("TOTAL","",lines,rows.Sum(x=>x.Target),margin);}
+ public static GeneralResult Total(IEnumerable<GeneralResult> rows,IEnumerable<SaleLine> source,IEnumerable<string> selected,DateTime period,decimal margin,bool intern,bool warranty,bool courtesy){var keys=new HashSet<string>(selected);var lines=source.Where(x=>SalesMath.Period(x.Date)==period&&keys.Contains(BranchKey(x))&&SalesMath.Included(x,intern,warranty,courtesy));var list=rows.ToList();var result=Result("TOTAL","",lines,list.Sum(x=>x.Target),margin);result.HasTarget=list.Count>0&&list.All(x=>x.HasTarget);return result;}
 }
 public class GeneralReport {
  public List<SaleLine> Lines;public Dictionary<string,string> Names=new Dictionary<string,string>();public HashSet<string> Brands=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
