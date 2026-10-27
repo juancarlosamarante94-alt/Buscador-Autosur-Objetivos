@@ -100,7 +100,7 @@ jobs:
             turnero-impresion.png
             turnero-vista-previa.png
       - uses: softprops/action-gh-release@v2
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publicar)
+        if: github.event_name == 'workflow_dispatch' && inputs.publicar
         with:
           tag_name: v${{ env.VERSION }}
           name: Buscador Autosur Objetivos v${{ env.VERSION }}
@@ -114,13 +114,10 @@ jobs:
             turnero-impresion.png
             turnero-vista-previa.png
           body: |
-            App repuestos 1.3.9: nuevo Objetivo general por sucursal.
-            - Filtros de sucursales con tildes para seleccionar varias a la vez.
-            - Objetivos mensuales por sucursal, margen objetivo único e historial general separado.
-            - Totales calculados con las funciones existentes, sin modificar ObjetivosCore.cs.
-            - Panel de avances para copiar como imagen o guardar como PNG.
-            - Cierres del 27 al 26, importación repetida sin duplicados y sobreperformance sin tope.
-            - Se conservan la pestaña Objetivos y sus cargas y parámetros.
-            Validado en Windows con datos sintéticos. No incluye reportes comerciales ni DAT.
+            App repuestos 1.3.10: corrección de la carga de Objetivo general.
+            - Acepta reportes Excel exportados sin referencias A1/B1 o con referencias parciales.
+            - Conserva la posición de las celdas vacías y detecta sucursales sin el error de clave duplicada.
+            - Fórmulas y reglas de venta, utilidad, tickets y cierres sin cambios.
+            Validado en Windows con reportes sintéticos de ambos formatos. No incluye reportes comerciales ni DAT.
           generate_release_notes: true
 

@@ -5,7 +5,39 @@ class GeneralTests {
  static SaleLine Line(string branch,string number,decimal sale,decimal profit,string type="FACTURA DE VENTA"){return new SaleLine{Date=new DateTime(2026,10,15),Dealer="DEMO",Branch=branch,Code=type.Contains("CREDITO")?"NC":"FA",Letter="A",Number=number,Type=type,Sector="Taller",Part="REPUESTO DEMO",Sale=sale,Profit=profit};}
  static void Entry(ZipArchive zip,string path,string xml){using(var writer=new StreamWriter(zip.CreateEntry(path).Open()))writer.Write(xml);}
  static void Xlsx(string path,string brand){using(var z=ZipFile.Open(path,ZipArchiveMode.Create)){Entry(z,"xl/workbook.xml","<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><sheets><sheet name=\"Reporte\" sheetId=\"1\" r:id=\"rId1\"/></sheets></workbook>");Entry(z,"xl/_rels/workbook.xml.rels","<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Target=\"worksheets/sheet1.xml\" Type=\"worksheet\"/></Relationships>");string header="",row="";var values=new Dictionary<string,string>{{"A","DEMO"},{"B","01"},{"C","100 - Taller Norte Autosur"},{"D",new DateTime(2026,10,15).ToOADate().ToString(System.Globalization.CultureInfo.InvariantCulture)},{"H","FACTURA DE VENTA"},{"I","FA"},{"J","A"},{"K","0001"},{"L",brand},{"Q","Taller"},{"BM","DEMO"},{"CA","1000"},{"CG","300"}};foreach(var v in new Dictionary<string,string>{{"D","Fecha emisión"},{"K","Número comprobante"},{"CA","Venta a precio final del repuesto"},{"CG","Utilidad"}})header+="<c r=\""+v.Key+"1\" t=\"inlineStr\"><is><t>"+v.Value+"</t></is></c>";foreach(var v in values)row+="<c r=\""+v.Key+"2\" t=\"inlineStr\"><is><t>"+v.Value+"</t></is></c>";Entry(z,"xl/worksheets/sheet1.xml","<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\">"+header+"</row><row r=\"2\">"+row+"</row></sheetData></worksheet>");}}
+ static void ReferenceVariants(string root){
+  // Reproduce la estructura del exportado: 129 celdas por fila, referencias
+  // opcionales, celdas vacías, comprobante con varias líneas y fila de totales.
+  var n=(System.Xml.Linq.XNamespace)"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+  string source=Path.Combine(root,"references-source.xlsx");Xlsx(source,"RENAULT");
+  System.Xml.Linq.XDocument original;
+  using(var z=ZipFile.OpenRead(source))using(var input=z.GetEntry("xl/worksheets/sheet1.xml").Open())original=System.Xml.Linq.XDocument.Load(input);
+  var data=original.Descendants(n+"sheetData").Single();var first=data.Elements(n+"row").Last();
+  var second=new System.Xml.Linq.XElement(first);second.SetAttributeValue("r",3);data.Add(second);
+  var third=new System.Xml.Linq.XElement(first);third.SetAttributeValue("r",4);third.Elements(n+"c").Single(c=>(string)c.Attribute("r")=="B2").Descendants(n+"t").Single().Value="02";third.Elements(n+"c").Single(c=>(string)c.Attribute("r")=="C2").Descendants(n+"t").Single().Value="200 - Taller Sur Autosur";data.Add(third);
+  data.Add(new System.Xml.Linq.XElement(n+"row",new System.Xml.Linq.XAttribute("r",5),new System.Xml.Linq.XElement(n+"c",new System.Xml.Linq.XAttribute("r","CA5"),new System.Xml.Linq.XElement(n+"v",3000)),new System.Xml.Linq.XElement(n+"c",new System.Xml.Linq.XAttribute("r","CG5"),new System.Xml.Linq.XElement(n+"v",900))));
+  for(int mode=0;mode<3;mode++){
+   var sheet=new System.Xml.Linq.XDocument(original);int rowNumber=0;
+   foreach(var row in sheet.Descendants(n+"row")){
+    rowNumber++;var cells=row.Elements(n+"c").ToDictionary(c=>new String(((string)c.Attribute("r")).TakeWhile(Char.IsLetter).ToArray()));row.RemoveNodes();if(mode==1)row.Attribute("r").Remove();
+    for(int position=1;position<=129;position++){
+     int number=position;string column="";while(number>0){number--;column=(char)(65+number%26)+column;number/=26;}
+     System.Xml.Linq.XElement cell;cell=cells.ContainsKey(column)?new System.Xml.Linq.XElement(cells[column]):new System.Xml.Linq.XElement(n+"c");
+     if(mode==1||(mode==2&&position%3!=1))cell.SetAttributeValue("r",null);else cell.SetAttributeValue("r",column+rowNumber);
+     row.Add(cell);
+    }
+   }
+   string path=Path.Combine(root,"references-"+mode+".xlsx");
+   using(var z=ZipFile.OpenRead(source))using(var output=ZipFile.Open(path,ZipArchiveMode.Create))foreach(var entry in z.Entries){if(entry.FullName=="xl/worksheets/sheet1.xml")Entry(output,entry.FullName,sheet.ToString());else using(var input=entry.Open())using(var target=output.CreateEntry(entry.FullName).Open())input.CopyTo(target);}
+   var report=GeneralReport.Read(path,"RENAULT");var sum=SalesMath.Sum(report.Lines);
+   Assert(report.Lines.Count==3&&sum.Sale==3000&&sum.Profit==900&&sum.Tickets==2,"Referencias modo "+mode+": pierde líneas, duplica totales o cuenta mal tickets");
+   Assert(report.Names.Count==2&&report.Names["DEMO|01"]=="Norte"&&report.Names["DEMO|02"]=="Sur"&&report.Brands.SetEquals(new[]{"RENAULT"}),"Referencias modo "+mode+": desplaza columnas de sucursal o marca");
+   bool rejected=false;try{GeneralReport.Read(path,"NISSAN");}catch(Exception ex){rejected=ex.Message.Contains("otra marca");}Assert(rejected,"Referencias modo "+mode+": omite validación de marca");
+  }
+  Console.WriteLine("OK importación: referencias completas, ausentes y parciales; vacíos, sucursales, comprobante multilínea y total excluido");
+ }
  [STAThread]static void Main(){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);string root=Path.Combine(Path.GetTempPath(),"GeneralDemo_"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);try{
+ ReferenceVariants(root);
  DateTime p=new DateTime(2026,10,1);var cfg=new GeneralSettings(Path.Combine(root,"config"));cfg.Names["DEMO|01"]="Norte";cfg.Names["DEMO|02"]="Sur";cfg.SetTarget(p,"DEMO|01",700);cfg.SetTarget(p,"DEMO|02",700);cfg.SetMargin(p,22);cfg.Save();cfg=new GeneralSettings(Path.Combine(root,"config"));Assert(cfg.Target(p,"DEMO|01")==700&&cfg.Margin(p,0)==22,"No persiste objetivo por mes y sucursal");Assert(cfg.Target(p.AddMonths(1),"DEMO|01")==0,"Mezcla objetivos de meses");
  var lines=new List<SaleLine>{Line("01","1",500,150),Line("01","1",500,150),Line("01","2",-100,-20,"NOTA DE CREDITO"),Line("02","1",500,150)};var branches=GeneralMath.Branches(cfg,lines);var rows=GeneralMath.Rows(lines,branches,cfg,p,22,true,true,true);var total=GeneralMath.Total(rows,lines,branches.Select(b=>b.Key),p,22,true,true,true);Assert(total.Values.Sale==1400&&total.Values.Profit==430&&total.Values.Tickets==2,"Venta, utilidad o tickets no coinciden con núcleo existente");Assert(total.Values.Margin==SalesMath.Sum(lines).Margin,"Total promedia márgenes en vez de ponderar");Assert(rows[0].Advance>100&&total.Advance==100&&total.UtilityTarget==308&&total.UtilityDifference==-122,"Objetivo, diferencia o sobreperformance incorrectos");
  var one=GeneralMath.Rows(lines,branches.Take(1),cfg,p,22,true,true,true);var oneTotal=GeneralMath.Total(one,lines,branches.Take(1).Select(b=>b.Key),p,22,true,true,true);Assert(oneTotal.Values.Sale==900&&oneTotal.Target==700,"Filtro por sucursal mezcla otras bocas");var empty=GeneralMath.Total(new List<GeneralResult>(),lines,new string[0],p,22,true,true,true);Assert(empty.Values.Sale==0&&empty.Target==0&&empty.Advance==null,"Selección vacía mantiene cifras ocultas");cfg.SetTarget(p,"DEMO|02",0);var partialRows=GeneralMath.Rows(lines,branches,cfg,p,22,true,true,true);Assert(GeneralMath.Total(partialRows,lines,branches.Select(x=>x.Key),p,22,true,true,true).Advance==null,"Objetivos parciales muestran avance engañoso");cfg.SetTarget(p,"DEMO|02",700);
