@@ -72,3 +72,14 @@ El workflow de Windows valida cálculos, interfaz, centrado de símbolos y desca
 El lector por horarios puede omitir filas cuando el texto de la hora cae fuera del borde izquierdo detectado del encabezado. Se agrega un lector compatible basado en los anclajes Renault/Nissan que usaba la versión anterior, con límites más amplios para cliente y servicios. Se elige el resultado con más turnos, sin concatenar ni duplicar ambas lecturas. Se conserva el lector por horarios para continuaciones largas entre páginas cuando detecta todos los turnos. La compatibilidad utiliza la distribución de columnas de la agenda original; otros diseños pueden requerir ajustes.
 
 La prueba de regresión desplaza las horas hacia la izquierda, verifica que el lector 1.3.6 devuelve cero y que el lector compatible recupera los siete turnos sintéticos con nombres, teléfonos, patentes, chasis e importes. El PDF privado del usuario no se publica ni se ejecuta en Actions. La comprobación final sobre ese archivo sigue pendiente.
+
+
+## Objetivo general por sucursal
+
+La pestaña **Objetivo general** carga reportes de toda la marca y permite seleccionar varias sucursales con tildes. Los nombres se detectan desde el código de concesionario, código de sucursal y taller del reporte; se pueden editar en **Objetivos por sucursal**. Cada sucursal tiene un objetivo mensual en pesos y el cierre usa un margen objetivo único. Los objetivos se guardan por sucursal y mes.
+
+Para usarla: elegir el cierre (mes/año), cargar el reporte de la marca, completar los objetivos y tildar las sucursales a comparar. **Generar panel de avances** permite copiar una imagen o guardarla en PNG, con el total solo de las sucursales seleccionadas. Los importes se muestran sin IVA y el margen total se calcula con utilidad total dividida por venta total, utilizando el núcleo existente. Si faltan objetivos seleccionados, el avance total queda pendiente.
+
+Las cargas generales y sus objetivos se guardan en `datos/general`, separados de la pestaña Objetivos existente. La inclusión de Interno, Garantía y Cortesía se toma de los parámetros existentes. Se respetan los cierres del 27 al 26. Por defecto se ignoran filas de otros cierres; se pueden importar explícitamente para conservar historial. Cada carga reemplaza el cierre importado, sin sumar duplicados. El reporte debe incluir todas las sucursales que se quieran conservar para ese cierre.
+
+Las pruebas de Windows comprueban filtros múltiples, tickets únicos, NC, margen ponderado, objetivos persistentes, sobreperformance, objetivos incompletos, aislamiento del historial original y exportación PNG con cinco sucursales e importes grandes. Las imágenes de demostración tienen datos ficticios. No se publica ningún reporte comercial.
